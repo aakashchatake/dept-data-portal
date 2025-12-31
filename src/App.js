@@ -152,6 +152,8 @@ export default function App() {
   const [submitStatus, setSubmitStatus] = useState('idle'); // idle, submitting, success, error
   const [isAdminView, setIsAdminView] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [showAdminPrompt, setShowAdminPrompt] = useState(false);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
 
   // 1. Auth Setup
   useEffect(() => {
@@ -600,6 +602,52 @@ export default function App() {
     );
   }
 
+  // Admin Password Prompt
+  if (showAdminPrompt) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full mx-4">
+          <h3 className="text-2xl font-bold text-slate-800 mb-4">Admin Dashboard</h3>
+          <p className="text-slate-600 mb-6">Enter admin password to access reports.</p>
+          <input 
+            type="password" 
+            placeholder="Admin Password"
+            value={adminPasswordInput}
+            onChange={(e) => setAdminPasswordInput(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                if (adminPasswordInput === 'admin2025') {
+                  setIsAdminView(true);
+                  setShowAdminPrompt(false);
+                } else {
+                  alert('Incorrect password');
+                  setAdminPasswordInput('');
+                }
+              }
+            }}
+            className="w-full px-4 py-2 border rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="flex gap-3">
+            <button onClick={() => { 
+              if (adminPasswordInput === 'admin2025') {
+                setIsAdminView(true);
+                setShowAdminPrompt(false);
+              } else {
+                alert('Incorrect password');
+                setAdminPasswordInput('');
+              }
+            }} className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">
+              Access
+            </button>
+            <button onClick={() => setShowAdminPrompt(false)} className="flex-1 bg-slate-200 text-slate-700 py-2 rounded-lg font-medium hover:bg-slate-300">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-slate-100 font-sans text-slate-800 overflow-hidden">
       {/* Demo Mode Banner */}
@@ -649,8 +697,8 @@ export default function App() {
         <header className="h-16 bg-white border-b flex items-center justify-between px-6 shrink-0 z-20 shadow-sm relative">
           <h2 className="font-semibold text-slate-700 hidden md:block">{sections[activeTab].title}</h2>
           <div className="flex gap-2 ml-auto items-center">
-             <button onClick={() => setIsAdminView(true)} className="flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200 text-sm font-medium mr-4">
-                <LayoutDashboard size={16} /> Admin Dashboard
+             <button onClick={() => { setAdminPasswordInput(''); setShowAdminPrompt(true); }} className="flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200 text-sm font-medium mr-4">
+                <LayoutDashboard size={16} /> Admin
              </button>
              <button onClick={() => setActiveTab(Math.max(0, activeTab - 1))} disabled={activeTab === 0} className="p-2 rounded hover:bg-slate-100 disabled:opacity-30"><ChevronLeft /></button>
              <button onClick={() => setActiveTab(Math.min(sections.length - 1, activeTab + 1))} disabled={activeTab === sections.length - 1} className="p-2 rounded hover:bg-slate-100 disabled:opacity-30"><ChevronRight /></button>
