@@ -134,11 +134,11 @@ const initialData = {
   higherEd: [],
   events: [],
   photos: [
-    { id: 1, event: '', date: '', filename: '', checks: [] },
-    { id: 2, event: '', date: '', filename: '', checks: [] },
-    { id: 3, event: '', date: '', filename: '', checks: [] },
-    { id: 4, event: '', date: '', filename: '', checks: [] },
-    { id: 5, event: '', date: '', filename: '', checks: [] },
+    { id: 1, event: '', date: '', filename: '', file: '', checks: [] },
+    { id: 2, event: '', date: '', filename: '', file: '', checks: [] },
+    { id: 3, event: '', date: '', filename: '', file: '', checks: [] },
+    { id: 4, event: '', date: '', filename: '', file: '', checks: [] },
+    { id: 5, event: '', date: '', filename: '', file: '', checks: [] },
   ],
   highlights: ['', '', '', '']
 };
@@ -442,7 +442,73 @@ export default function App() {
       case 7: return (<div className="space-y-6"><SectionHeader title="MoUs" icon={Briefcase} /><button onClick={() => addArrayItem('mous', {org: ''})} className="btn-add"><Plus size={18}/> Add MoU</button>{data.mous.map((item, idx) => (<div key={idx} className="card-item"><button onClick={() => removeArrayItem('mous', idx)} className="card-delete"><Trash2/></button><InputField label="Org" value={item.org} onChange={(v)=>updateArrayItem('mous',idx,'org',v)}/></div>))}</div>);
       case 8: return (<div className="space-y-6"><SectionHeader title="Placements" icon={Briefcase} /><button onClick={() => addArrayItem('placements', {company: '', count: ''})} className="btn-add"><Plus size={18}/> Add Placement</button>{data.placements.map((item, idx) => (<div key={idx} className="card-item"><button onClick={() => removeArrayItem('placements', idx)} className="card-delete"><Trash2/></button><InputField label="Company" value={item.company} onChange={(v)=>updateArrayItem('placements',idx,'company',v)}/></div>))}</div>);
       case 9: return (<div className="space-y-6"><SectionHeader title="Events" icon={Camera} /><button onClick={() => addArrayItem('events', {name: ''})} className="btn-add"><Plus size={18}/> Add Event</button>{data.events.map((item, idx) => (<div key={idx} className="card-item"><button onClick={() => removeArrayItem('events', idx)} className="card-delete"><Trash2/></button><InputField label="Name" value={item.name} onChange={(v)=>updateArrayItem('events',idx,'name',v)}/></div>))}</div>);
-      case 10: return (<div className="space-y-6"><SectionHeader title="Photographs" icon={Camera} />{data.photos.map((item, idx) => (<div key={idx} className="card-item"><h4 className="font-bold">Photo {idx+1}</h4><InputField label="Event" value={item.event} onChange={(v)=>updateArrayItem('photos',idx,'event',v)}/></div>))}</div>);
+      case 10: return (
+        <div className="space-y-6">
+          <SectionHeader title="Photographs" icon={Camera} description="Upload photos and provide event details." />
+          {data.photos.map((item, idx) => (
+            <div key={idx} className="card-item">
+              <h4 className="font-bold mb-4">Photo {idx+1}</h4>
+              <div className="space-y-4">
+                {/* Photo Upload Section */}
+                <div>
+                  <label className="text-sm font-semibold text-slate-700 block mb-2">Upload Photo</label>
+                  <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center bg-slate-50 hover:bg-slate-100 transition cursor-pointer relative">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            updateArrayItem('photos', idx, 'file', event.target?.result);
+                            updateArrayItem('photos', idx, 'filename', file.name);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <div className="pointer-events-none">
+                      {item.file ? (
+                        <div className="space-y-2">
+                          <div className="text-2xl">✓</div>
+                          <div className="text-sm font-semibold text-green-600">{item.filename}</div>
+                          <div className="text-xs text-slate-500">Click to change</div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Camera size={32} className="mx-auto text-slate-400" />
+                          <div className="text-sm font-semibold text-slate-600">Click to upload photo</div>
+                          <div className="text-xs text-slate-500">or drag and drop</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* Photo Preview */}
+                {item.file && (
+                  <div className="mt-4">
+                    <img src={item.file} alt={`Photo ${idx+1}`} className="w-full max-h-64 object-contain rounded-lg border border-slate-200" />
+                    <button
+                      onClick={() => {
+                        updateArrayItem('photos', idx, 'file', '');
+                        updateArrayItem('photos', idx, 'filename', '');
+                      }}
+                      className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      ✕ Remove Photo
+                    </button>
+                  </div>
+                )}
+                {/* Event Details */}
+                <InputField label="Event / Description" value={item.event} onChange={(v)=>updateArrayItem('photos',idx,'event',v)} placeholder="e.g. Annual Sports Day 2024" />
+                <InputField label="Date" type="date" value={item.date} onChange={(v)=>updateArrayItem('photos',idx,'date',v)} />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
 
       case 11: // Highlights
         return (
